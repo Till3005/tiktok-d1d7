@@ -1,11 +1,12 @@
 import { copyFileSync, existsSync, mkdirSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const outDir = process.env.MAKEFUN_OUTPUT_DIR ?? "/output";
-if (!existsSync("VIDEO.json")) {
-  console.error("VIDEO.json not found next to main.ts");
-  process.exit(1);
-}
+const source = join(dirname(fileURLToPath(import.meta.url)), "VIDEO.json");
+const outDir = process.env.MAKEFUN_OUTPUT_DIR;
+if (!outDir) throw new Error("MAKEFUN_OUTPUT_DIR is not set to an output directory");
+if (!existsSync(source)) throw new Error(`VIDEO.json not found next to main.ts: ${source}`);
 mkdirSync(outDir, { recursive: true });
-copyFileSync("VIDEO.json", join(outDir, "VIDEO.json"));
-console.log(`copied VIDEO.json -> ${join(outDir, "VIDEO.json")}`);
+const target = join(outDir, "VIDEO.json");
+copyFileSync(source, target);
+console.log(`Copied VIDEO.json to ${target}`);
